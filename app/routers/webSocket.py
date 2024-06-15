@@ -1,4 +1,8 @@
 from fastapi import APIRouter, Depends, status, HTTPException, WebSocket, WebSocketDisconnect
+import json
+import numpy as np
+import logging
+import sys
 
 router = APIRouter(
     prefix="/speech_to_text",
@@ -14,12 +18,17 @@ class ConnectionManager:
 
     async def connect(self, websocket: WebSocket):
         """connect event"""
+        # Process JWT first
         await websocket.accept()
+        await websocket.send_text(json.dumps("Hi from FASTAPI"))
         self.active_connections.append(websocket)
 
     async def send(self, message: str, websocket: WebSocket):
         """Direct Message"""
-        await websocket.send_text(message)
+        try:
+            await websocket.send_text(message)
+        except WebSocketDisconnect:
+            self.disconnect(websocket)
 
     def disconnect(self, websocket: WebSocket):
         """disconnect event"""
@@ -27,7 +36,8 @@ class ConnectionManager:
 
 
 manager = ConnectionManager()
-
+logger = logging.getLogger('uvicorn.error')
+logger.setLevel(logging.DEBUG)
 
 
 # WebSocket endpoint for real time speech to text recognition
@@ -38,9 +48,10 @@ async def websocket_endpoint(websocket: WebSocket):
     await manager.connect(websocket)
     try:
         while True:
-            data = await websocket.receive_text()
-            await manager.send(f"Received:{data}", websocket)
+            data = await websocket.receive_bytes()
+            logger.debug("Got data from websocket")
+            audio_data = np.frombuffer(data, dtype=np.float32)
+            # Process data here
+            await manager.send(f"Received: {len(audio_data)} audio", websocket)
     except WebSocketDisconnect:
         manager.disconnect(websocket)
-        await manager.send("Bye!!!", websocket)
-
