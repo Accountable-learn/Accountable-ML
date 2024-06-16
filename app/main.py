@@ -1,9 +1,7 @@
 from fastapi import FastAPI
 from .routers import webSocket
 from fastapi.middleware.cors import CORSMiddleware
-import logging
-logger = logging.getLogger('uvicorn.error')
-logger.setLevel(logging.DEBUG)
+
 
 """
 TODO: Here are a couple of things to be done
@@ -39,7 +37,6 @@ app.add_middleware(
 
 @app.get('/helloworld')
 def hello():
-    logger.debug('this is a debug message')
     return "hello world!"
 
 

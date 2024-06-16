@@ -2,13 +2,25 @@ from fastapi import WebSocket, WebSocketDisconnect, APIRouter
 import numpy as np
 import whisper
 import torch
-import json
 import os
+import wave
+import ffmpeg
+import io
+import json
+from pydub import AudioSegment
+
+# Disable ssl for now
+import ssl
+
+from pydub.exceptions import CouldntDecodeError
+
+ssl._create_default_https_context = ssl._create_unverified_context
 
 router = APIRouter(
     prefix="/speech_to_text",
     tags=['WebSocket']
 )
+
 
 class ConnectionManager:
     """Class defining socket events"""
@@ -35,39 +47,57 @@ class ConnectionManager:
         self.active_connections.remove(websocket)
 
 
+# Load the Whisper model
+device = "cuda" if torch.cuda.is_available() else "cpu"
+model = whisper.load_model("base", device=device)
+
+
 manager = ConnectionManager()
 
-# Load the Whisper model
-model_path = os.path.join(os.path.dirname(__file__), '../models/base.en.pt')
-model = whisper.load_model(model_path)
-device = "cuda" if torch.cuda.is_available() else "cpu"
-model.to(device)
+
+def save_audio_to_wav(audio_data: bytes, file_path: str, sample_rate: int = 16000):
+    audio_segment = AudioSegment(
+        data=audio_data,
+        sample_width=2,
+        frame_rate=sample_rate,
+        channels=1
+    )
+    audio_segment.export(file_path, format="wav")
+
+
+async def transcribe_audio(audio_data: bytes) -> str:
+    audio_path = "temp_audio.wav"
+    save_audio_to_wav(audio_data, audio_path)
+
+    audio = whisper.load_audio(audio_path)
+    audio = whisper.pad_or_trim(audio)
+    mel = whisper.log_mel_spectrogram(audio).to(model.device)
+    options = whisper.DecodingOptions(language="en", fp16=torch.cuda.is_available())
+    result = whisper.decode(model, mel, options)
+
+    os.remove(audio_path)  # Clean up the temporary file
+    return result.text
+
 
 @router.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
+    audio_data = bytearray()
+    data_chunk = 16000 * 2
     await manager.connect(websocket)
     try:
-        audio_chunks = []
-        accumulated_transcription = ''
         while True:
             data = await websocket.receive_bytes()
-            audio_data = np.frombuffer(data, dtype=np.float32)
-            audio_chunks.append(audio_data)
-            # Process data here
-            if len(audio_chunks) > 10:  # Arbitrary condition to process chunks
-                audio_input = np.concatenate(audio_chunks)
-                audio_chunks = []  # Reset chunks after processing
-
-                # Convert the NumPy array to a PyTorch tensor and move to GPU if available
-                audio_tensor = torch.tensor(audio_input, dtype=torch.float32).to(device)
-
-                # Perform the transcription
-                transcription_result = model.transcribe(audio_tensor)
-                transcription_text = transcription_result['text']
-                accumulated_transcription += transcription_text + " "
-
-                # Send the transcribed text back to the client
-                # logger.debug(accumulated_transcription)
-                await manager.send(json.dumps({"text": accumulated_transcription}), websocket)
+            audio_data.extend(data)
+            while len(audio_data) >= data_chunk:  # Process every 1 second of audio (16-bit mono)
+                chunk = audio_data[:data_chunk]
+                transcript = await transcribe_audio(chunk)
+                await manager.send(json.dumps({"message": transcript}), websocket)
+                audio_data = audio_data[data_chunk:]  # Keep unprocessed data in buffer
     except WebSocketDisconnect:
         manager.disconnect(websocket)
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        await websocket.close()
+
+
+
