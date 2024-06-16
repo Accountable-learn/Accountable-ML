@@ -3,11 +3,8 @@ import numpy as np
 import whisper
 import torch
 import os
-import wave
-import ffmpeg
-import io
+import asyncio
 import json
-from pydub import AudioSegment
 
 # Disable ssl for now
 import ssl
@@ -68,22 +65,22 @@ async def transcribe_audio_file(file_path: str) -> str:
     result = whisper.decode(model, mel, options)
     return result.text
 
-@router.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket):
-    audio_file_path = "accumulated_audio.mp3"
-    # Clear any existing file at the start
-    if os.path.exists(audio_file_path):
-        os.remove(audio_file_path)
-
-    await manager.connect(websocket)
+async def accumulate_audio_data(websocket: WebSocket, audio_file_path: str):
     try:
         while True:
             data = await websocket.receive_bytes()
             append_audio_to_file(data, audio_file_path)
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        await websocket.close()
 
-            # Periodically transcribe the accumulated audio file
+async def transcribe_periodically(websocket: WebSocket, audio_file_path: str):
+    try:
+        while True:
+            await asyncio.sleep(1)
             transcript = await transcribe_audio_file(audio_file_path)
-            print(transcript)
             if transcript:
                 await manager.send(json.dumps({"message": transcript}), websocket)
     except WebSocketDisconnect:
@@ -92,3 +89,15 @@ async def websocket_endpoint(websocket: WebSocket):
         print(f"Unexpected error: {e}")
         await websocket.close()
 
+@router.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    audio_file_path = "accumulated_audio.mp3"
+    # Clear any existing file at the start
+    if os.path.exists(audio_file_path):
+        os.remove(audio_file_path)
+
+    await manager.connect(websocket)
+    await asyncio.gather(
+        accumulate_audio_data(websocket, audio_file_path),
+        transcribe_periodically(websocket, audio_file_path)
+    )
