@@ -49,55 +49,46 @@ class ConnectionManager:
 
 # Load the Whisper model
 device = "cuda" if torch.cuda.is_available() else "cpu"
-model = whisper.load_model("base", device=device)
+model = whisper.load_model("small", device=device)
 
 
 manager = ConnectionManager()
 
 
-def save_audio_to_wav(audio_data: bytes, file_path: str, sample_rate: int = 16000):
-    audio_segment = AudioSegment(
-        data=audio_data,
-        sample_width=2,
-        frame_rate=sample_rate,
-        channels=1
-    )
-    audio_segment.export(file_path, format="wav")
+def append_audio_to_file(audio_data: bytes, file_path: str):
+    with open(file_path, "ab") as f:
+        f.write(audio_data)
 
-
-async def transcribe_audio(audio_data: bytes) -> str:
-    audio_path = "temp_audio.wav"
-    save_audio_to_wav(audio_data, audio_path)
-
-    audio = whisper.load_audio(audio_path)
+async def transcribe_audio_file(file_path: str) -> str:
+    # Load the audio file
+    audio = whisper.load_audio(file_path)
     audio = whisper.pad_or_trim(audio)
     mel = whisper.log_mel_spectrogram(audio).to(model.device)
     options = whisper.DecodingOptions(language="en", fp16=torch.cuda.is_available())
     result = whisper.decode(model, mel, options)
-
-    os.remove(audio_path)  # Clean up the temporary file
     return result.text
-
 
 @router.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
-    audio_data = bytearray()
-    data_chunk = 16000 * 2
+    audio_file_path = "accumulated_audio.mp3"
+    # Clear any existing file at the start
+    if os.path.exists(audio_file_path):
+        os.remove(audio_file_path)
+
     await manager.connect(websocket)
     try:
         while True:
             data = await websocket.receive_bytes()
-            audio_data.extend(data)
-            while len(audio_data) >= data_chunk:  # Process every 1 second of audio (16-bit mono)
-                chunk = audio_data[:data_chunk]
-                transcript = await transcribe_audio(chunk)
+            append_audio_to_file(data, audio_file_path)
+
+            # Periodically transcribe the accumulated audio file
+            transcript = await transcribe_audio_file(audio_file_path)
+            print(transcript)
+            if transcript:
                 await manager.send(json.dumps({"message": transcript}), websocket)
-                audio_data = audio_data[data_chunk:]  # Keep unprocessed data in buffer
     except WebSocketDisconnect:
         manager.disconnect(websocket)
     except Exception as e:
         print(f"Unexpected error: {e}")
         await websocket.close()
-
-
 
