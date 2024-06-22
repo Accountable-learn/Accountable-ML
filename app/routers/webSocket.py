@@ -8,10 +8,8 @@ import json
 
 # Disable ssl for now
 import ssl
-
-from pydub.exceptions import CouldntDecodeError
-
 ssl._create_default_https_context = ssl._create_unverified_context
+
 
 router = APIRouter(
     prefix="/speech_to_text",
