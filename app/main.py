@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from .routers import webSocket
+from .routers import audio_WS, questions
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -41,4 +41,5 @@ def hello():
 
 
 # Register the endpoint
-app.include_router(webSocket.router)
+app.include_router(audio_WS.router)
+app.include_router(questions.router)
