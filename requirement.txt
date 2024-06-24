@@ -5,3 +5,5 @@ websockets
 ffmpeg
 pydub
 langchain
+transformers
+torch
