@@ -1,9 +1,10 @@
 fastapi
 uvicorn
-whisper
+openai-whisper
 websockets
 ffmpeg
 pydub
 langchain
 transformers
 torch
+<numpy2
