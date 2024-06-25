@@ -9,8 +9,9 @@ router = APIRouter(
 
 question_generator = QuestionGenerator()
 
+
 @router.get("/generate_question")
-async def generate_question(topic: str = "animals"):
+async def generate_question(topic: str = "baseball"):
     try:
         print("generating questions!")
         question = question_generator.generate_question(topic)

@@ -61,3 +61,9 @@
 ## 4. Record users' word count for competition
 - Should send the word count to backend for record
 - Attach date too?
+
+
+### Some Windows set up notes for myself:
+1. Download CUDA12.1 (As Pytorch doesn't support 12.5 the latest version yet): ```https://developer.nvidia.com/cuda-12-1-0-download-archive?target_os=Windows&target_arch=x86_64&target_version=10&target_type=exe_local```
+2. Download CUDA version of Pytorch: ```pip install torch==2.3.0 torchvision==0.18.0 torchaudio==2.3.0 --index-url https://download.pytorch.org/whl/cu121```
+3. Login to huggingface_hub using the CLI tool

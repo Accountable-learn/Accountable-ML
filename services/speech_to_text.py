@@ -15,6 +15,7 @@ def append_audio_to_file(audio_data: bytes, file_path: str):
     with open(file_path, "ab") as f:
         f.write(audio_data)
 
+
 async def transcribe_audio_file(file_path: str) -> str:
     # Load the audio file
     audio = whisper.load_audio(file_path)
@@ -24,6 +25,7 @@ async def transcribe_audio_file(file_path: str) -> str:
     result = whisper.decode(model, mel, options)
     return result.text
 
+
 async def accumulate_audio_data(websocket: WebSocket, manager: ConnectionManager, audio_file_path: str):
     try:
         while True:
@@ -32,6 +34,7 @@ async def accumulate_audio_data(websocket: WebSocket, manager: ConnectionManager
     except WebSocketDisconnect:
         if websocket:
             manager.disconnect(websocket)
+
 
 async def transcribe_periodically(websocket: WebSocket, manager: ConnectionManager, audio_file_path: str):
     try:
