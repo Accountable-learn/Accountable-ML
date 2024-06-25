@@ -7,4 +7,4 @@ pydub
 langchain
 transformers
 torch
-<numpy2
+numpy<2
