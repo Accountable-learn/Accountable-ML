@@ -37,3 +37,20 @@ class QuestionGenerator:
         )
         question = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
         return question.split("Question:")[-1].strip()
+
+
+
+# Apple Silicon won't work with quantization
+# python -m mlx_lm.generate --help
+# self.tokenizer = load("mlx-community/Meta-Llama-3–8B-Instruct-4bit")
+# self.model = load("mlx-community/Meta-Llama-3–8B-Instruct-4bit")
+# response = generate(self.model, self.tokenizer, prompt="Who are you")
+# print(response)
+
+
+# Pipeline
+# messages = [
+#     {"role": "user", "content": "Do you like baseball"},
+# ]
+# pipe = pipeline("text-generation", model=self.model_path)
+# pipe(messages)
