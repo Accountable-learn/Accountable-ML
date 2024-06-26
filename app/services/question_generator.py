@@ -6,13 +6,13 @@ from langchain_core.prompts import PromptTemplate
 class QuestionGenerator:
     def __init__(self):
         self.model_id = 'meta-llama/Meta-Llama-3-8B-Instruct'
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.device = "cuda"
 
         # Load the tokenizer and model from local path
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_id)
         self.pad_token = self.tokenizer.eos_token  # Set pad_token to eos_token
 
-        # TODO: IT is probably not Llama's issues creating unreliable output. Running in Ollama is fine
+        # TODO: Output is not reliable
         self.bnb_config = BitsAndBytesConfig(
             load_in_4bit=True,
             bnb_4bit_use_double_quant=True,
@@ -21,7 +21,7 @@ class QuestionGenerator:
         )
         self.model = AutoModelForCausalLM.from_pretrained(
             self.model_id,
-            device_map="auto",
+            device_map="cuda",
             quantization_config=self.bnb_config
         )
 
