@@ -12,7 +12,7 @@ class QuestionGenerator:
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_id)
         self.pad_token = self.tokenizer.eos_token  # Set pad_token to eos_token
 
-        # TODO: Output is not reliable
+        # TODO: IT is probably not Llama's issues creating unreliable output. Running in Ollama is fine
         self.bnb_config = BitsAndBytesConfig(
             load_in_4bit=True,
             bnb_4bit_use_double_quant=True,
