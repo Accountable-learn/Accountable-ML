@@ -1,11 +1,6 @@
 import torch
-from langchain.chains.llm import LLMChain
 from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline, BitsAndBytesConfig
 from langchain.prompts import PromptTemplate
-
-
-# Entire model is reloaded everytime some files are changed (Wondering if there is a better approaches)
-
 
 class QuestionGenerator:
     def __init__(self):
@@ -16,6 +11,7 @@ class QuestionGenerator:
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_id)
         self.pad_token = self.tokenizer.eos_token  # Set pad_token to eos_token
 
+        # TODO: Even with quantization, inference still kinda slow
         self.bnb_config  = BitsAndBytesConfig(
             load_in_4bit=True,
             bnb_4bit_use_double_quant=True,

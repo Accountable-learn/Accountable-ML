@@ -1,4 +1,4 @@
-# Project Overview
+# Project Overview (WIP)
 ## 1. WebSocket for Real-Time Communication
 - Purpose: Stream audio from the client to the backend service.
 - WebSocket Protocol: Allows for bidirectional communication between the client and server.
@@ -41,10 +41,10 @@
 
 
 # Phase1:
-## 1.Randomly generate 10 questions with Llama3
+## 1. Randomly generate 10 questions with Llama3
 - FE should display those 10 easy questions
 
-## 2.Real time speech recognition
+## 2. Real time speech recognition
 - Should capture user's real time answers with Whisper.
 - Should only save the final transcriptions for error analysis.
 - Should count number of words spoken and record it.
@@ -67,3 +67,4 @@
 1. Download CUDA12.1 (As Pytorch doesn't support 12.5 the latest version yet): ```https://developer.nvidia.com/cuda-12-1-0-download-archive?target_os=Windows&target_arch=x86_64&target_version=10&target_type=exe_local```
 2. Download CUDA version of Pytorch: ```pip install torch==2.3.0 torchvision==0.18.0 torchaudio==2.3.0 --index-url https://download.pytorch.org/whl/cu121```
 3. Login to huggingface_hub using the CLI tool
+4. Getting ```UserWarning: 1Torch was not compiled with flash attention.``` Maybe it is because FlashAttentionV2 is not on Windows yet?
