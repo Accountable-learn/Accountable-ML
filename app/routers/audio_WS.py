@@ -2,13 +2,13 @@ from fastapi import WebSocket, APIRouter
 
 import tempfile
 from app.routers.connection_manager import ConnectionManager
-from services import speech_to_text
+from app.services import speech_to_text
 import os
 import asyncio
-# Disable ssl for now
+# TODO: Disable ssl for now
 import ssl
-ssl._create_default_https_context = ssl._create_unverified_context
 
+ssl._create_default_https_context = ssl._create_unverified_context
 
 router = APIRouter(
     prefix="/speech_to_text",
@@ -16,6 +16,7 @@ router = APIRouter(
 )
 
 manager = ConnectionManager()
+
 
 @router.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):

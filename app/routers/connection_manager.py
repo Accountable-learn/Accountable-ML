@@ -1,5 +1,7 @@
 from fastapi import WebSocket, WebSocketDisconnect
 import json
+
+
 class ConnectionManager:
     """Class defining socket events"""
 

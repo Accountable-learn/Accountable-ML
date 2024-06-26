@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 
-from services.question_generator import QuestionGenerator
+from app.services.question_generator import QuestionGenerator
 
 router = APIRouter(
     prefix="/questions",
