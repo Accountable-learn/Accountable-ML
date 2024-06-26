@@ -1,6 +1,7 @@
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline, BitsAndBytesConfig
-from langchain.prompts import PromptTemplate
+from langchain_core.prompts import PromptTemplate
+
 
 class QuestionGenerator:
     def __init__(self):
@@ -11,8 +12,8 @@ class QuestionGenerator:
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_id)
         self.pad_token = self.tokenizer.eos_token  # Set pad_token to eos_token
 
-        # TODO: Even with quantization, inference still kinda slow
-        self.bnb_config  = BitsAndBytesConfig(
+        # TODO: Output is not reliable
+        self.bnb_config = BitsAndBytesConfig(
             load_in_4bit=True,
             bnb_4bit_use_double_quant=True,
             bnb_4bit_quant_type="nf4",
@@ -24,15 +25,14 @@ class QuestionGenerator:
             quantization_config=self.bnb_config
         )
 
-        # TODO: Use PromptTemplate to give some examples
-        self.prompt_template = PromptTemplate(
-            input_variables=["topic"],
-            template=(
-                "You are an English teacher. Generate 10 open-ended questions for new English learners about the topic: {topic}.\n\n"
-                "Don't include the answers, only generate the questions. \n\n"
-                "Questions:\n"
-                "1. "
-            )
+        self.prompt_template = PromptTemplate.from_template(
+            """
+You are an English teacher having a conversation with a student. Ask 10 questions about {topic}.
+Your format should be:
+Questions:
+1. ...
+2. ...
+            """
         )
 
     def extract_questions(self, text: str) -> str:
@@ -51,14 +51,7 @@ class QuestionGenerator:
         )
 
         # Generate the response
-        response = generator(prompt)[0]['generated_text']
+        response = generator(prompt, max_new_tokens=1000)[0]['generated_text']
         questions = self.extract_questions(response)
-        print("Response:", response)
+        print(questions)
         return questions
-
-# Apple Silicon doesn't work with quantization, maybe try this
-# python -m mlx_lm.generate --help
-# self.tokenizer = load("mlx-community/Meta-Llama-3–8B-Instruct-4bit")
-# self.model = load("mlx-community/Meta-Llama-3–8B-Instruct-4bit")
-# response = generate(self.model, self.tokenizer, prompt="Who are you")
-# print(response)

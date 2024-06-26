@@ -27,7 +27,7 @@
 - RAG (Retrieval-Augmented Generation): Future integration with a customized curriculum database for enhanced feedback and learning resources.
 
 
-# After proof of concept
+## After proof of concept:
 ## 5. Verify JWT for Controlled Access
 - Connection: Accept any WebSocket connection.
 - JWT Token: Require the client to send their JWT token as the first message.
@@ -64,7 +64,15 @@
 
 
 ### Some Windows set up notes for myself:
-1. Download CUDA12.1 (As Pytorch doesn't support 12.5 the latest version yet): ```https://developer.nvidia.com/cuda-12-1-0-download-archive?target_os=Windows&target_arch=x86_64&target_version=10&target_type=exe_local```
-2. Download CUDA version of Pytorch: ```pip install torch==2.3.0 torchvision==0.18.0 torchaudio==2.3.0 --index-url https://download.pytorch.org/whl/cu121```
-3. Login to huggingface_hub using the CLI tool
-4. Getting ```UserWarning: 1Torch was not compiled with flash attention.``` Maybe it is because FlashAttentionV2 is not on Windows yet?
+1. Set up the python environment
+2. Download CUDA12.1 (As Pytorch doesn't support 12.5 the latest version yet): ```https://developer.nvidia.com/cuda-12-1-0-download-archive?target_os=Windows&target_arch=x86_64&target_version=10&target_type=exe_local```
+3. Download CUDA version of Pytorch: ```pip install torch==2.3.0 torchvision==0.18.0 torchaudio==2.3.0 --index-url https://download.pytorch.org/whl/cu121```
+4. Login to huggingface_hub using the CLI tool
+5. Getting ```UserWarning: 1Torch was not compiled with flash attention.``` Maybe it is because FlashAttentionV2 is not on Windows yet
+6. Linux is faster (Linux subsystem?)
+
+### Some Mac set up for myself:
+1. Quantization doesn't work on Mac it is not compatible with CUDA
+2. BitsAndBytes needs CUDA
+3. Instead, we could use GGUF model (which apparently is Mac friendly)
+4. We could also use `mlx_lm` or just ollama :)
