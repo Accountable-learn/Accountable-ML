@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException
 
+from app.main import format_res
 from app.services.question_generator import QuestionGenerator
 
 router = APIRouter(
@@ -14,6 +15,6 @@ question_generator = QuestionGenerator()
 async def generate_question(topic: str = "baseball"):
     try:
         question = question_generator.generate_question(topic)
-        return {"question": question}
+        return format_res(200, {"question": question})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

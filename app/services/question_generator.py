@@ -32,12 +32,13 @@ class QuestionGenerator:
                 "Don't include the answers or annotation, only generate those 10 questions. \n"
             )
         )
-    def extract_questions(self, text: str) -> str:
+
+    def extract_questions(self, text: str) -> list[str]:
         lines = text.split('\n')
         questions = [line.strip() for line in lines if line.strip().endswith('?')]
-        return '\n'.join(questions)
+        return questions
 
-    def generate_question(self, topic: str) -> str:
+    def generate_question(self, topic: str) -> list[str]:
         prompt = self.prompt_template.format(topic=topic)
 
         # Use the pipeline with the loaded model and tokenizer
