@@ -4,23 +4,24 @@ from .routers import audio_WS, questions
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-"""
-TODO: Here are a couple of things to be done
-1. WebSocket for real time communication
-    - Socket set up - Done
-    - Try to stream the audio via the socket from FE
-    - Configure NGINX to redirect websocket for production
-    - Connect to FE
-    
-2. Verify JWT for controlled access
-    - Add authentication to verify JWT
-    - Given a JWT, send it to backend auth server to do the authentication
-3. Add Whisper model
-    - 
-"""
 
 app = FastAPI()
 
+
+"""
+TODO:
+1. Add SSL to the server
+2. Refine the origins list
+3. Try out more models and different quantization
+4. Stream the token generation maybe?
+5. Add a logger
+6. Error handling
+7. Error analysis?
+8. JWT Authentication
+"""
+
+
+# TODO: refine the list
 origins = [
     "http://localhost.tiangolo.com",
     "https://localhost.tiangolo.com",

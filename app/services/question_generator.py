@@ -56,5 +56,4 @@ class QuestionGenerator:
         print(f"Time taken to generate questions: {elapsed_time:.2f} seconds")
 
         questions = self.extract_questions(response)
-        print(questions)
         return questions
