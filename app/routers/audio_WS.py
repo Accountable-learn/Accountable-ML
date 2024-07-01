@@ -18,6 +18,7 @@ router = APIRouter(
 manager = ConnectionManager()
 
 
+# TODO: needs to handle the case better where socket is closed and still trying to send dat
 @router.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()

@@ -40,7 +40,7 @@ async def transcribe_periodically(websocket: WebSocket, manager: ConnectionManag
         while True:
             await asyncio.sleep(1)
             transcript = await transcribe_audio_file(audio_file_path)
-            if transcript:
+            if transcript and websocket:
                 await manager.send(json.dumps({"message": transcript}), websocket)
     except WebSocketDisconnect:
         manager.disconnect(websocket)

@@ -2,7 +2,7 @@ fastapi
 uvicorn
 openai-whisper
 websockets
-ffmpeg
+ffmpeg-python
 pydub
 langchain
 transformers

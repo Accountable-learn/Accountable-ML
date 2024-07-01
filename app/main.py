@@ -10,6 +10,7 @@ app = FastAPI()
 
 """
 TODO:
+0. Handle silent audio file
 1. Add SSL to the server
 2. Refine the origins list
 3. Try out more models and different quantization
