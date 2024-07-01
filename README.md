@@ -70,6 +70,8 @@
 4. Login to huggingface_hub using the CLI tool
 5. Getting ```UserWarning: 1Torch was not compiled with flash attention.``` Maybe it is because FlashAttentionV2 is not on Windows yet
 6. Linux is faster (Linux subsystem?)
+7. Download ffmpeg: https://phoenixnap.com/kb/ffmpeg-windows
+8. `pip install ffmpeg-python`
 
 ### Some Mac set up for myself:
 1. Quantization doesn't work on Mac it is not compatible with CUDA

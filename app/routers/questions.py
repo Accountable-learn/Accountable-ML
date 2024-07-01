@@ -14,7 +14,7 @@ question_generator = QuestionGenerator()
 @router.get("/generate_question")
 async def generate_question(topic: str = "baseball"):
     try:
-        question = question_generator.generate_question(topic)
-        return format_res(200, {"question": question})
+        questions = question_generator.generate_question(topic)
+        return format_res(200, {"questions": questions})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

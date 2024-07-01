@@ -3,8 +3,6 @@ import json
 
 
 class ConnectionManager:
-    """Class defining socket events"""
-
     def __init__(self):
         """init method, keeping track of connections"""
         self.active_connections = []
@@ -12,7 +10,6 @@ class ConnectionManager:
     async def connect(self, websocket: WebSocket):
         """connect event"""
         await websocket.accept()
-        await websocket.send_text(json.dumps({"message": "Hi from FASTAPI"}))
         self.active_connections.append(websocket)
 
     async def send(self, message: str, websocket: WebSocket):
@@ -24,4 +21,5 @@ class ConnectionManager:
 
     def disconnect(self, websocket: WebSocket):
         """disconnect event"""
-        self.active_connections.remove(websocket)
+        if websocket in self.active_connections:
+            self.active_connections.remove(websocket)

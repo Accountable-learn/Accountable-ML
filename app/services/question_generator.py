@@ -2,6 +2,7 @@ import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline, BitsAndBytesConfig
 from langchain_core.prompts import PromptTemplate
 import time
+import re
 
 
 class QuestionGenerator:
@@ -35,7 +36,11 @@ class QuestionGenerator:
 
     def extract_questions(self, text: str) -> list[str]:
         lines = text.split('\n')
-        questions = [line.strip() for line in lines if line.strip().endswith('?')]
+        questions = []
+        for line in lines:
+            cleaned_line = re.sub(r'^\d+\.\s*', '', line).strip()
+            if cleaned_line.endswith('?'):
+                questions.append(cleaned_line)
         return questions
 
     def generate_question(self, topic: str) -> list[str]:

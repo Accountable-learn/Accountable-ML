@@ -32,8 +32,7 @@ async def accumulate_audio_data(websocket: WebSocket, manager: ConnectionManager
             data = await websocket.receive_bytes()
             append_audio_to_file(data, audio_file_path)
     except WebSocketDisconnect:
-        if websocket:
-            manager.disconnect(websocket)
+        manager.disconnect(websocket)
 
 
 async def transcribe_periodically(websocket: WebSocket, manager: ConnectionManager, audio_file_path: str):
@@ -44,5 +43,4 @@ async def transcribe_periodically(websocket: WebSocket, manager: ConnectionManag
             if transcript:
                 await manager.send(json.dumps({"message": transcript}), websocket)
     except WebSocketDisconnect:
-        if websocket:
-            manager.disconnect(websocket)
+        manager.disconnect(websocket)
